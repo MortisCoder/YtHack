@@ -1,131 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shrinking Circle Physics</title>
+    <title>Игра с мячом</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            overflow: hidden;
+        }
+
+        canvas {
+            border: 3px solid white;
+            display: none;
+            width: 90vw;
+            height: 80vh;
+            max-width: 800px;
+            max-height: 600px;
+        }
+
+        button {
+            padding: 15px 25px;
+            font-size: 24px;
+            cursor: pointer;
+            background: yellow;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-<styles>
-    * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: black;
-}
-
-canvas {
-    border: 3px solid white;
-    display: none; /* Скрываем до нажатия кнопки */
-}
-
-button {
-    padding: 10px 20px;
-    font-size: 20px;
-    cursor: pointer;
-    background: yellow;
-    border: none;
-    border-radius: 5px;
-    margin-bottom: 20px;
-}
-
-</styles>
-    
-    <button id="startButton">Начать</button>
+    <button id="startButton">🎮 НАЧАТЬ</button>
     <canvas id="gameCanvas"></canvas>
+
     <script>
         const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-const startButton = document.getElementById("startButton");
+        const ctx = canvas.getContext("2d");
+        const startButton = document.getElementById("startButton");
 
-canvas.width = 800;
-canvas.height = 600;
+        function resizeCanvas() {
+            canvas.width = window.innerWidth * 0.9;
+            canvas.height = window.innerHeight * 0.8;
+        }
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
 
-let gameStarted = false;
+        let gameStarted = false;
+        let bigRadius = Math.min(canvas.width, canvas.height) / 3;
+        const bigCenter = { x: canvas.width / 2, y: canvas.height / 2 };
+        const smallRadius = Math.min(canvas.width, canvas.height) / 20;
+        let ballColor = "blue";
 
-// Настройки круга
-let bigRadius = 200;
-const bigCenter = { x: canvas.width / 2, y: canvas.height / 2 };
-const smallRadius = 20;
-let ballColor = "blue";
+        let angle = Math.random() * Math.PI * 2;
+        let speed = 3;
+        let smallX = bigCenter.x + bigRadius * 0.5 * Math.cos(angle);
+        let smallY = bigCenter.y + bigRadius * 0.5 * Math.sin(angle);
+        let velX = speed * Math.cos(angle);
+        let velY = speed * Math.sin(angle);
+        const gravity = 0.2;
 
-// Начальные параметры мяча
-let angle = Math.random() * Math.PI * 2;
-let speed = 3;
-let smallX = bigCenter.x + bigRadius * 0.5 * Math.cos(angle);
-let smallY = bigCenter.y + bigRadius * 0.5 * Math.sin(angle);
-let velX = speed * Math.cos(angle);
-let velY = speed * Math.sin(angle);
-const gravity = 0.2;
+        function randomColor() {
+            return `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`;
+        }
 
-// Функция для случайного цвета
-function randomColor() {
-    return `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`;
-}
+        function update() {
+            if (!gameStarted) return;
 
-// Игровой цикл
-function update() {
-    if (!gameStarted) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+            velY += gravity;
+            smallX += velX;
+            smallY += velY;
 
-    // Применяем гравитацию
-    velY += gravity;
-    smallX += velX;
-    smallY += velY;
+            let distX = smallX - bigCenter.x;
+            let distY = smallY - bigCenter.y;
+            let distance = Math.sqrt(distX ** 2 + distY ** 2);
 
-    // Проверка столкновения
-    let distX = smallX - bigCenter.x;
-    let distY = smallY - bigCenter.y;
-    let distance = Math.sqrt(distX ** 2 + distY ** 2);
+            if (distance + smallRadius >= bigRadius) {
+                ballColor = randomColor();
+                bigRadius -= 3;
+                if (bigRadius < smallRadius * 2) bigRadius = smallRadius * 2;
 
-    if (distance + smallRadius >= bigRadius) {
-        ballColor = randomColor();
-        bigRadius -= 3;
-        if (bigRadius < 20) bigRadius = 20;
+                let normX = distX / distance;
+                let normY = distY / distance;
+                let dotProduct = velX * normX + velY * normY;
+                velX -= 2 * dotProduct * normX;
+                velY -= 2 * dotProduct * normY;
 
-        let normX = distX / distance;
-        let normY = distY / distance;
-        let dotProduct = velX * normX + velY * normY;
-        velX -= 2 * dotProduct * normX;
-        velY -= 2 * dotProduct * normY;
+                smallX = bigCenter.x + (bigRadius - smallRadius - 1) * normX;
+                smallY = bigCenter.y + (bigRadius - smallRadius - 1) * normY;
+            }
 
-        smallX = bigCenter.x + (bigRadius - smallRadius - 1) * normX;
-        smallY = bigCenter.y + (bigRadius - smallRadius - 1) * normY;
-    }
+            ctx.beginPath();
+            ctx.arc(bigCenter.x, bigCenter.y, bigRadius, 0, Math.PI * 2);
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 3;
+            ctx.stroke();
 
-    // Рисуем большой круг
-    ctx.beginPath();
-    ctx.arc(bigCenter.x, bigCenter.y, bigRadius, 0, Math.PI * 2);
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 3;
-    ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(smallX, smallY, smallRadius, 0, Math.PI * 2);
+            ctx.fillStyle = ballColor;
+            ctx.fill();
 
-    // Рисуем маленький мяч
-    ctx.beginPath();
-    ctx.arc(smallX, smallY, smallRadius, 0, Math.PI * 2);
-    ctx.fillStyle = ballColor;
-    ctx.fill();
+            requestAnimationFrame(update);
+        }
 
-    requestAnimationFrame(update);
-}
+        startButton.addEventListener("click", startGame);
+        startButton.addEventListener("touchstart", startGame);
 
-// Запуск игры при нажатии кнопки
-startButton.addEventListener("click", () => {
-    gameStarted = true;
-    startButton.style.display = "none"; // Скрываем кнопку
-    canvas.style.display = "block"; // Показываем канвас
-    update();
-});
-
+        function startGame() {
+            if (gameStarted) return;
+            gameStarted = true;
+            startButton.style.display = "none";
+            canvas.style.display = "block";
+            update();
+        }
     </script>
 </body>
 </html>
