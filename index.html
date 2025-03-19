@@ -25,8 +25,8 @@
             border: 3px solid white;
             display: none;
             width: 90vw;
-            height: 80vh;
-            max-width: 800px;
+            height: 90vw; /* Делаем круг квадратным */
+            max-width: 600px;
             max-height: 600px;
         }
 
@@ -52,16 +52,17 @@
         const startButton = document.getElementById("startButton");
 
         function resizeCanvas() {
-            canvas.width = window.innerWidth * 0.9;
-            canvas.height = window.innerHeight * 0.8;
+            let size = Math.min(window.innerWidth, window.innerHeight) * 0.9;
+            canvas.width = size;
+            canvas.height = size;
         }
         resizeCanvas();
         window.addEventListener("resize", resizeCanvas);
 
         let gameStarted = false;
-        let bigRadius = Math.min(canvas.width, canvas.height) / 3;
+        let bigRadius = canvas.width / 2.5;
         const bigCenter = { x: canvas.width / 2, y: canvas.height / 2 };
-        const smallRadius = Math.min(canvas.width, canvas.height) / 20;
+        const smallRadius = canvas.width / 20;
         let ballColor = "blue";
 
         let angle = Math.random() * Math.PI * 2;
