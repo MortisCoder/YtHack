@@ -19,6 +19,22 @@
             height: 100vh;
             background-color: black;
             overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            color: white;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #fff;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+        }
+
+        h1:first-of-type {
+            font-size: 40px;
+            color: #FFD700; /* золотой цвет для первого заголовка */
         }
 
         canvas {
@@ -39,15 +55,35 @@
             border-radius: 10px;
             font-weight: bold;
             margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #FFDD00;
+        }
+
+        a {
+            color: #FFD700;
+            font-size: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 20px;
+            display: block;
+            text-align: center;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #FF6347;
         }
     </style>
 </head>
 <body>
-    <h1>by Mortis PRO</h1>
-    <button id="startButton">🎮 НАЧАТЬ</button>
+    <h1>🎮 Игра с мячом</h1>
+    <button id="startButton">НАЧАТЬ</button>
     <canvas id="gameCanvas"></canvas>
-        <h1>Подпишись на мой канал</h1>
-    <a>https://www.youtube.com/@MortisCoder/shorts</a>
+    <h1>Подпишись на мой канал</h1>
+    <a href="https://www.youtube.com/@MortisCoder/shorts" target="_blank">Мой Ютуб канал</a>
 
     <script>
         const canvas = document.getElementById("gameCanvas");
